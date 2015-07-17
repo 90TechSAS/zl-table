@@ -84,8 +84,8 @@ module.exports = function(grunt) {
 				},
 				build: {
 					files:  {},
-					src:    'e.js',
-					dest:   'e.min.js'
+					src:    'table.js',
+					dest:   'table.min.js'
 				}
 			},
 			less: {
@@ -94,14 +94,14 @@ module.exports = function(grunt) {
 					},
 					files: {
 						"main.css": "_base.less",
-						"e.css": "_e.less"
+						"table.css": "_table.less"
 					}
 				}
 			},
 			cssmin: {
 				dev: {
-					src: ['e.css'],
-					dest: 'e.min.css'
+					src: ['table.css'],
+					dest: 'table.min.css'
 				}
 			}/*,
 			karma: {

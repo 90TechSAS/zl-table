@@ -1,3 +1,17 @@
-<div ng-controller='HomeCtrl'>	
-	<!-- TODO: place directive call here -->
+<div ng-controller='HomeCtrl'>
+    <span>Home View</span>
+    <table zl-table="[{name: 'florent', lastName: 'Gouget'}, {name: 'Xavier', lastName: 'Hen'}, {name: 'a', lastName:'aa'}]" columns="['name', 'lastName']">
+        <thead>
+        <tr>
+            <th id="name">First Name</th>
+            <th id="lastName">Last Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{elt.name}}</td>
+            <td><div>{{elt.lastName}}</div></td>
+        </tr>
+        </tbody>
+    </table>
 </div>
