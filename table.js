@@ -26,22 +26,15 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
 
 
     function getAvalaibleColumns(thead, tbody) {
-        var row     = _.find(thead.children, function (ch) {
-            return ch.tagName === 'TR'
-        });
-        var bodyRow = _.find(tbody.children, function (ch) {
-            return ch.tagName === 'TR'
-        });
-
-        var available = [];
-        _.each(row.children, function (c, i) {
-            available.push({
+        var row     = _.find(thead.children, 'tagName', 'TR');
+        var bodyRow = _.find(tbody.children, 'tagName', 'TR');
+        return _.map(row.children, function (c, i) {
+            return {
                 id          : c.attributes.getNamedItem('id').value,
                 headTemplate: c.innerHTML,
                 template    : bodyRow.children[i].innerHTML
-            })
+            };
         });
-        return available;
     }
 
     function buildHeader(columns) {
@@ -56,7 +49,6 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
     }
 
     function buildBody(columns) {
-
         var elt = '<tbody><tr ng-repeat="elt in zlTable | orderBy:orderBy:reverse">';
         _.each(columns, function (c) {
             elt += '<td ng-if="display(\'' + c.id + '\')">' + c.template + '</td>';
@@ -72,15 +64,8 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
             columns: '='
         },
         compile   : function (elt) {
-            if (!elt) {
-                return;
-            }
-            var head             = _.find(elt.children(), function (ch) {
-                return ch.tagName === 'THEAD'
-            });
-            var body             = _.find(elt.children(), function (ch) {
-                return ch.tagName === 'TBODY'
-            });
+            var head             = _.find(elt.children(), 'tagName', 'THEAD');
+            var body             = _.find(elt.children(), 'tagName', 'TBODY');
             var availableColumns = getAvalaibleColumns(head, body);
             var headBuilt        = buildHeader(availableColumns);
             var bodyBuilt        = buildBody(availableColumns);
@@ -111,5 +96,4 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
             }
         }
     };
-}])
-;
+}]);
