@@ -39,7 +39,7 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
     }
 
     function buildHeader(columns) {
-        var elt = '<thead><tr>';
+        var elt = '<thead><tr><th><input type="checkbox" ng-model="selectAll" ng-click="ctrl.selectAll(selectAll)"/></th>';
         _.each(columns, function (child) {
             elt += '<th ng-click="ctrl.order(\'' + child.id + '\')" ng-if="ctrl.display(\'' + child.id + '\')">';
             elt += child.headTemplate;
@@ -51,7 +51,8 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
 
     function buildBody(columns) {
         var elt = '<tbody>' +
-            '<tr ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse" ng-click="ctrl.columnClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">';
+            '<tr class="noselect" ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
+            '<td  ng-click="ctrl.selectClick($event, elt)"><input ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" type="checkbox" ng-checked="ctrl.isSelected(elt)"/></td>';
         _.each(columns, function (c) {
             elt += '<td ng-if="ctrl.display(\'' + c.id + '\')">' + c.template + '</td>';
         });
@@ -93,10 +94,37 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
         controller      : function () {
             var self = this;
 
+            function selectAll(bool) {
+                console.info('select all: ', bool);
+                if (bool) {
+                    self.selectedData = _.map(self.zlTable, function (el) {
+                        return el[self.idField];
+                    });
+                } else {
+                    self.selectedData = [];
+                }
+            }
 
-            function columnClick(event, elt) {
-                event.preventDefault();
+            function selectClick(event, elt) {
+                if (event.shiftKey && !isSelected(elt)) {
+                    rowClick(event, elt);
+                } else {
+                    if (isSelected(elt)) {
+                        _.remove(self.selectedData, function (selectedId) {
+                            return selectedId === getIdValue(elt);
+                        });
+                    } else {
+                        self.selectedData.push(getIdValue(elt));
+                    }
+                    self.selectionChanged({$selectedData: self.selectedData});
+                }
+            }
+
+            function rowClick(event, elt) {
                 if (event.shiftKey) {
+                    if (isSelected(elt)){
+                        return;
+                    }
                     var lastClicked = self.selectedData[self.selectedData.length - 1] || getIdValue(self.zlTable[0]);
                     var inside      = false;
                     _.each(self.zlTable, function (currentObj) {
@@ -107,19 +135,11 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
                             self.selectedData.push(getIdValue(currentObj));
                         }
                     });
-                    if (!isSelected(elt)){
+                    if (!isSelected(elt)) {
                         self.selectedData.push(getIdValue(elt));
                     }
-                } else {
-                    if (isSelected(elt)) {
-                        _.remove(self.selectedData, function (selectedId) {
-                            return selectedId === getIdValue(elt);
-                        });
-                    } else {
-                        self.selectedData.push(getIdValue(elt));
-                    }
+                    self.selectionChanged({$selectedData: self.selectedData});
                 }
-                self.selectionChanged({$selectedData: self.selectedData});
             }
 
             function isSelected(elt) {
@@ -168,8 +188,10 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
                 order      : order,
                 display    : display,
                 dismiss    : dismiss,
-                columnClick: columnClick,
-                isSelected : isSelected
+                rowClick   : rowClick,
+                isSelected : isSelected,
+                selectClick: selectClick,
+                selectAll  : selectAll
             });
 
             init();

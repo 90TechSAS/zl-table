@@ -11,7 +11,7 @@ angular.module('myApp').controller('HomeCtrl', ['$scope', '$http', '$q', functio
             var begin = pagination.currentPage * pagination.perPage;
             var end =  (pagination.currentPage+1)*pagination.perPage;
             self.data = data.slice(begin, end);
-            self.pagination = _.extend(pagination, {totalElements : 5});
+            self.pagination = _.extend(pagination, {totalElements : 20});
         });
     };
 }]);

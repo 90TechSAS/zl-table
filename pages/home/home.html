@@ -1,6 +1,4 @@
 <div ng-controller='HomeCtrl as home'>
-    <span>Home View</span>
-    {{home.selected}}
     <table zl-table="home.data" update="home.update($pagination)" selected-data="home.selected" pagination="home.pagination" columns="['name','favoriteFruit', 'greeting', 'friends', 'tags', 'name.first', 'name.last']">
         <thead>
         <tr>
@@ -62,4 +60,6 @@
 
 
     <zl-paginate  update="home.update($pagination)" pagination="home.pagination"></zl-paginate>
+    <br><span ng-show="home.selected.length">{{home.selected.length}} selected elements</span>
+
 </div>
