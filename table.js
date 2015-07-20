@@ -24,10 +24,9 @@
 
 angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$timeout', function ($compile, $timeout) {
 
-    var paginationTemplate = '<button ng-if=""></button><button ng-repeat="elt in ctrl.paginateArray() track by $index" ng-click="ctrl.page($index)">{{$index +1}}</button>';
+    var ID_FIELDS = ['id', '_id', 'uid', 'uuid', '$uid'];
 
-
-    function getAvalaibleColumns(thead, tbody) {
+    function getAvailableColumns(thead, tbody) {
         var row     = _.find(thead.children, 'tagName', 'TR');
         var bodyRow = _.find(tbody.children, 'tagName', 'TR');
         return _.map(row.children, function (c, i) {
@@ -51,7 +50,8 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
     }
 
     function buildBody(columns) {
-        var elt = '<tbody><tr ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse">';
+        var elt = '<tbody>' +
+            '<tr ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse" ng-click="ctrl.columnClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">';
         _.each(columns, function (c) {
             elt += '<td ng-if="ctrl.display(\'' + c.id + '\')">' + c.template + '</td>';
         });
@@ -64,16 +64,18 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
         controllerAs    : 'ctrl',
         scope           : {},
         bindToController: {
-            zlTable   : '=',
-            columns   : '=',
-            update    : '&',
-            pagination: '='
-
+            zlTable         : '=',
+            columns         : '=',
+            update          : '&',
+            pagination      : '=',
+            selectedData    : '=',
+            selectionChanged: '&',
+            idField         : '@'
         },
         compile         : function (elt) {
             var head             = _.find(elt.children(), 'tagName', 'THEAD');
             var body             = _.find(elt.children(), 'tagName', 'TBODY');
-            var availableColumns = getAvalaibleColumns(head, body);
+            var availableColumns = getAvailableColumns(head, body);
             var headBuilt        = buildHeader(availableColumns);
             var bodyBuilt        = buildBody(availableColumns);
 
@@ -85,42 +87,73 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
                     });
                     element.append($compile(headBuilt)(scope));
                     element.append($compile(bodyBuilt)(scope));
-                    element.append($compile(paginationTemplate)(scope));
                 }
             }
         },
         controller      : function () {
             var self = this;
 
+
+            function columnClick(event, elt) {
+                event.preventDefault();
+                if (event.shiftKey) {
+                    var lastClicked = self.selectedData[self.selectedData.length - 1] || getIdValue(self.zlTable[0]);
+                    var inside      = false;
+                    _.each(self.zlTable, function (currentObj) {
+                        if (getIdValue(currentObj) === lastClicked || currentObj === elt) {
+                            inside = !inside;
+                        }
+                        if (inside && !isSelected(currentObj)) {
+                            self.selectedData.push(getIdValue(currentObj));
+                        }
+                    });
+                    if (!isSelected(elt)){
+                        self.selectedData.push(getIdValue(elt));
+                    }
+                } else {
+                    if (isSelected(elt)) {
+                        _.remove(self.selectedData, function (selectedId) {
+                            return selectedId === getIdValue(elt);
+                        });
+                    } else {
+                        self.selectedData.push(getIdValue(elt));
+                    }
+                }
+                self.selectionChanged({$selectedData: self.selectedData});
+            }
+
+            function isSelected(elt) {
+                return _.includes(self.selectedData, getIdValue(elt));
+            }
+
+            function getIdValue(obj) {
+                if (!self.idField) {
+                    var found = _.find(ID_FIELDS, function (f) {
+                        return obj[f];
+                    });
+                    if (found) {
+                        self.idField = found;
+                    }
+                }
+                return self.idField ? obj[self.idField] : undefined;
+            }
+
             function updateCall() {
-                console.info('updateCall');
                 self.update({$pagination: self.pagination});
             }
 
             function init() {
                 self.pagination             = self.pagination || {};
                 self.pagination.currentPage = self.pagination.currentPage || 0;
-                self.pagination.perPage     = self.pagination.perPage || 2;
+                self.pagination.perPage     = self.pagination.perPage || 10;
+                self.selectedData           = self.selectedData || [];
                 updateCall();
-            }
-
-
-            function page(pageNumber) {
-                self.pagination.currentPage = pageNumber;
-                updateCall();
-            }
-
-            function paginateArray() {
-                var pageNumber = Math.ceil(self.pagination.totalElements / self.pagination.perPage);
-                if (isNaN(pageNumber)) {
-                    pageNumber = 0;
-                }
-                return new Array(pageNumber);
             }
 
             function order(name) {
-                self.orderBy = name;
-                self.reverse = !this.reverse;
+                self.pagination.orderBy = name;
+                self.pagination.reverse = !this.reverse;
+                updateCall();
             }
 
             function display(name) {
@@ -132,15 +165,65 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
             }
 
             _.extend(self, {
-                order        : order,
-                display      : display,
-                dismiss      : dismiss,
-                paginateArray: paginateArray,
-                page         : page
+                order      : order,
+                display    : display,
+                dismiss    : dismiss,
+                columnClick: columnClick,
+                isSelected : isSelected
             });
 
             init();
 
         }
     };
+}]);
+
+
+angular.module('90TechSAS.zl-table').directive('zlPaginate', ['$compile', '$timeout', function ($compile, $timeout) {
+
+    return {
+        restrict        : 'E',
+        controllerAs    : 'paginationCtrl',
+        scope           : {},
+        template        : '<button ng-if="paginationCtrl.pagination.currentPage != 0" ng-click="paginationCtrl.previousPage()">&lt;</button>' +
+        '<button ng-repeat="elt in paginationCtrl.paginateArray() track by $index" ng-click="paginationCtrl.page($index)">{{$index +1}}</button>' +
+        '<button ng-if="paginationCtrl.pagination.currentPage != paginationCtrl.pagination.totalElements" ng-click="paginationCtrl.nextPage()">&gt;</button>',
+        bindToController: {
+            update    : '&',
+            pagination: '='
+        },
+        controller      : function () {
+
+            var self = this;
+
+            function updateCall() {
+                self.update({$pagination: self.pagination});
+            }
+
+            function nextPage() {
+                self.page(self.pagination.currentPage + 1);
+            }
+
+            function previousPage() {
+                self.page(self.pagination.currentPage - 1);
+            }
+
+            function page(pageNumber) {
+                self.pagination.currentPage = pageNumber;
+                updateCall();
+            }
+
+            function paginateArray() {
+                var pageNumber = Math.ceil(self.pagination.totalElements / self.pagination.perPage);
+                return new Array(isNaN(pageNumber) ? 0 : pageNumber);
+            }
+
+            _.extend(self, {
+                paginateArray: paginateArray,
+                page         : page,
+                previousPage : previousPage,
+                nextPage     : nextPage
+            });
+        }
+    }
 }]);
