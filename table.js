@@ -24,6 +24,8 @@
 
 angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$timeout', function ($compile, $timeout) {
 
+    var paginationTemplate = '<button ng-if=""></button><button ng-repeat="elt in ctrl.paginateArray() track by $index" ng-click="ctrl.page($index)">{{$index +1}}</button>';
+
 
     function getAvalaibleColumns(thead, tbody) {
         var row     = _.find(thead.children, 'tagName', 'TR');
@@ -40,30 +42,35 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
     function buildHeader(columns) {
         var elt = '<thead><tr>';
         _.each(columns, function (child) {
-            elt += '<th ng-click="order(\'' + child.id + '\')" ng-if="display(\'' + child.id + '\')">';
+            elt += '<th ng-click="ctrl.order(\'' + child.id + '\')" ng-if="ctrl.display(\'' + child.id + '\')">';
             elt += child.headTemplate;
-            elt += '<button ng-click="dismiss(\'' + child.id + '\')">x</button>';
+            elt += '<button ng-click="ctrl.dismiss(\'' + child.id + '\')">x</button>';
             elt += '</th>';
         });
         return elt;
     }
 
     function buildBody(columns) {
-        var elt = '<tbody><tr ng-repeat="elt in zlTable | orderBy:orderBy:reverse">';
+        var elt = '<tbody><tr ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse">';
         _.each(columns, function (c) {
-            elt += '<td ng-if="display(\'' + c.id + '\')">' + c.template + '</td>';
+            elt += '<td ng-if="ctrl.display(\'' + c.id + '\')">' + c.template + '</td>';
         });
         elt += '</tr></tbody>';
         return elt;
     }
 
     return {
-        restrict  : 'A',
-        scope     : {
-            zlTable: '=',
-            columns: '='
+        restrict        : 'A',
+        controllerAs    : 'ctrl',
+        scope           : {},
+        bindToController: {
+            zlTable   : '=',
+            columns   : '=',
+            update    : '&',
+            pagination: '='
+
         },
-        compile   : function (elt) {
+        compile         : function (elt) {
             var head             = _.find(elt.children(), 'tagName', 'THEAD');
             var body             = _.find(elt.children(), 'tagName', 'TBODY');
             var availableColumns = getAvalaibleColumns(head, body);
@@ -72,28 +79,68 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
 
             return {
                 pre: function (scope, element) {
-                    $timeout(function(){
+                    $timeout(function () {
                         head.remove();
                         body.remove();
                     });
                     element.append($compile(headBuilt)(scope));
                     element.append($compile(bodyBuilt)(scope));
+                    element.append($compile(paginationTemplate)(scope));
                 }
             }
         },
-        controller: function ($scope) {
-            $scope.order = function (name) {
-                $scope.orderBy = name;
-                $scope.reverse = !$scope.reverse;
-            };
+        controller      : function () {
+            var self = this;
 
-            $scope.display = function (name) {
-                return _.contains($scope.columns, name);
-            };
-
-            $scope.dismiss = function (name) {
-                _.pull($scope.columns, name);
+            function updateCall() {
+                console.info('updateCall');
+                self.update({$pagination: self.pagination});
             }
+
+            function init() {
+                self.pagination             = self.pagination || {};
+                self.pagination.currentPage = self.pagination.currentPage || 0;
+                self.pagination.perPage     = self.pagination.perPage || 2;
+                updateCall();
+            }
+
+
+            function page(pageNumber) {
+                self.pagination.currentPage = pageNumber;
+                updateCall();
+            }
+
+            function paginateArray() {
+                var pageNumber = Math.ceil(self.pagination.totalElements / self.pagination.perPage);
+                if (isNaN(pageNumber)) {
+                    pageNumber = 0;
+                }
+                return new Array(pageNumber);
+            }
+
+            function order(name) {
+                self.orderBy = name;
+                self.reverse = !this.reverse;
+            }
+
+            function display(name) {
+                return _.contains(self.columns, name);
+            }
+
+            function dismiss(name) {
+                _.pull(self.columns, name);
+            }
+
+            _.extend(self, {
+                order        : order,
+                display      : display,
+                dismiss      : dismiss,
+                paginateArray: paginateArray,
+                page         : page
+            });
+
+            init();
+
         }
     };
 }]);

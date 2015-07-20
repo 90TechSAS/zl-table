@@ -1,6 +1,6 @@
-<div ng-controller='HomeCtrl'>
+<div ng-controller='HomeCtrl as home'>
     <span>Home View</span>
-    <table zl-table="data" columns="['name','favoriteFruit', 'greeting', 'friends', 'tags', 'name.first', 'name.last']">
+    <table zl-table="home.data" update="home.update($pagination)" pagination="home.pagination" columns="['name','favoriteFruit', 'greeting', 'friends', 'tags', 'name.first', 'name.last']">
         <thead>
         <tr>
             <th id="favoriteFruit">Favorite Fruit</th>
