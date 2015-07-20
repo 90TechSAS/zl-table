@@ -32,8 +32,9 @@
             <td>{{elt.greeting}}</td>
             <td>{{elt.friends.length}}</td>
             <td>
-                <span ng-repeat="tag in elt.tags track by $index">
-                    {{tag}}{{$last ? '' :','}}
+
+                <span ng-repeat="tag in elt.tags track by $index" class="label label-info" style="margin:0 1% 0 1%">
+                    {{tag}}
                 </span>
             </td>
             <td>{{elt.longitude}}</td>
