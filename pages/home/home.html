@@ -1,16 +1,63 @@
 <div ng-controller='HomeCtrl'>
     <span>Home View</span>
-    <table zl-table="[{name: 'florent', lastName: 'Gouget'}, {name: 'Xavier', lastName: 'Hen'}, {name: 'a', lastName:'aa'}]" columns="['name', 'lastName']">
+    <table zl-table="data" columns="['name','favoriteFruit', 'greeting', 'friends', 'tags', 'name.first', 'name.last']">
         <thead>
         <tr>
-            <th id="name">First Name</th>
-            <th id="lastName">Last Name</th>
+            <th id="favoriteFruit">Favorite Fruit</th>
+            <th id="greeting">Greeting</th>
+            <th id="friends">Friends</th>
+            <th id="tags">Tags</th>
+             <th id="longitude">Longitude</th>
+             <th id="latitude">Latitude</th>
+             <th id="registered">Registered</th>
+             <th id="about">About</th>
+             <th id="address">Address</th>
+             <th id="phone">Phone</th>
+             <th id="email">Email</th>
+             <th id="company">Company</th>
+             <th id="name.first">First Name</th>
+             <th id="name.last">Last Name</th>
+             <th id="eyeColor">Eye Color</th>
+             <th id="age">Age</th>
+             <th id="picture">Picture</th>
+             <th id="balance">Balance</th>
+             <th id="isActive">Active</th>
+             <th id="guid">guid</th>
+             <th id="index">index</th>
+             <th id="_id">_id</th>
+
+
+
         </tr>
         </thead>
         <tbody>
         <tr>
-            <td>{{elt.name}}</td>
-            <td><div>{{elt.lastName}}</div></td>
+            <td>{{elt.favoriteFruit}}</td>
+            <td>{{elt.greeting}}</td>
+            <td>{{elt.friends.length}}</td>
+            <td>
+                <span ng-repeat="tag in elt.tags track by $index">
+                    {{tag}}{{$last ? '' :','}}
+                </span>
+            </td>
+            <td>{{elt.longitude}}</td>
+            <td>{{elt.latitude}}</td>
+            <td>{{elt.registered}}</td>
+            <td>{{elt.about}}</td>
+            <td>{{elt.address}}</td>
+            <td>{{elt.phone}}</td>
+            <td>{{elt.email}}</td>
+            <td>{{elt.company}}</td>
+            <td>{{elt.name.first}}</td>
+            <td>{{elt.name.last}}</td>
+            <td>{{elt.eyeColor}}</td>
+            <td>{{elt.age}}</td>
+            <td>{{elt.picture}}</td>
+            <td>{{elt.balance}}</td>
+            <td>{{elt.isActive}}</td>
+            <td>{{elt.guid}}</td>
+            <td>{{elt.index}}</td>
+            <td>{{elt._id}}</td>
         </tr>
         </tbody>
     </table>

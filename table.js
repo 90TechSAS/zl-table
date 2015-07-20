@@ -22,7 +22,7 @@
 
 'use strict';
 
-angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', function ($compile) {
+angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$timeout', function ($compile, $timeout) {
 
 
     function getAvalaibleColumns(thead, tbody) {
@@ -67,36 +67,36 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', funct
 
     return {
         restrict  : 'A',
-        transclude: 'element',
-        replace   : true,
         scope     : {
             zlTable: '=',
             columns: '='
         },
-        template  : '<table></table>',
-        link      : function (scope, element, attrs, ctrl, transclude) {
-            transclude(function (clone) {
-                var elt = clone[0];
-                if (!elt) {
-                    return;
+        compile   : function (elt) {
+            if (!elt) {
+                return;
+            }
+            var head             = _.find(elt.children(), function (ch) {
+                return ch.tagName === 'THEAD'
+            });
+            var body             = _.find(elt.children(), function (ch) {
+                return ch.tagName === 'TBODY'
+            });
+            var availableColumns = getAvalaibleColumns(head, body);
+            var headBuilt        = buildHeader(availableColumns);
+            var bodyBuilt        = buildBody(availableColumns);
+
+            return {
+                pre: function (scope, element) {
+                    $timeout(function(){
+                        head.remove();
+                        body.remove();
+                    });
+                    element.append($compile(headBuilt)(scope));
+                    element.append($compile(bodyBuilt)(scope));
                 }
-                var head = _.find(elt.children, function (ch) {
-                    return ch.tagName === 'THEAD'
-                });
-                var body = _.find(elt.children, function (ch) {
-                    return ch.tagName === 'TBODY'
-                });
-
-                var availableColumns = getAvalaibleColumns(head, body);
-                var headBuilt        = buildHeader(availableColumns);
-                var bodyBuilt        = buildBody(availableColumns);
-                element.append($compile(headBuilt)(scope));
-                element.append($compile(bodyBuilt)(scope));
-            })
-
+            }
         },
-
-        controller: function ($scope, $element, $attrs) {
+        controller: function ($scope) {
             $scope.order = function (name) {
                 $scope.orderBy = name;
                 $scope.reverse = !$scope.reverse;
@@ -106,7 +106,7 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', funct
                 return _.contains($scope.columns, name);
             };
 
-            $scope.dismiss = function(name){
+            $scope.dismiss = function (name) {
                 _.pull($scope.columns, name);
             }
         }
