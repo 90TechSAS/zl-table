@@ -1,5 +1,5 @@
 <div ng-controller='HomeCtrl as home'>
-    <table zl-table="home.data" update="home.update($pagination)" selected-data="home.selected" pagination="home.pagination" columns="['name','favoriteFruit', 'greeting', 'friends', 'tags', 'name.first', 'name.last']">
+    <table zl-table="home.data" class="table" update="home.update($pagination)" selected-data="home.selected" pagination="home.pagination" columns="home.columns">
         <thead>
         <tr>
             <th id="favoriteFruit">Favorite Fruit</th>

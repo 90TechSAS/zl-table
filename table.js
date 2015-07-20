@@ -95,7 +95,6 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
             var self = this;
 
             function selectAll(bool) {
-                console.info('select all: ', bool);
                 if (bool) {
                     self.selectedData = _.map(self.zlTable, function (el) {
                         return el[self.idField];
@@ -209,7 +208,7 @@ angular.module('90TechSAS.zl-table').directive('zlPaginate', ['$compile', '$time
         scope           : {},
         template        : '<button ng-if="paginationCtrl.pagination.currentPage != 0" ng-click="paginationCtrl.previousPage()">&lt;</button>' +
         '<button ng-repeat="elt in paginationCtrl.paginateArray() track by $index" ng-click="paginationCtrl.page($index)">{{$index +1}}</button>' +
-        '<button ng-if="paginationCtrl.pagination.currentPage != paginationCtrl.pagination.totalElements" ng-click="paginationCtrl.nextPage()">&gt;</button>',
+        '<button ng-if="paginationCtrl.pagination.currentPage < paginationCtrl.paginateArray().length -1" ng-click="paginationCtrl.nextPage()">&gt;</button>',
         bindToController: {
             update    : '&',
             pagination: '='
