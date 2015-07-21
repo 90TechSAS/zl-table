@@ -30,11 +30,14 @@ module.directive('zlTable', ['$compile', '$timeout', function ($compile, $timeou
 
     var availableColumns;
     var rootElement;
+    var tHeadAttrs, tBodyAttrs, headRowAttrs, bodyRowAttrs;
 
     function compile(elt) {
         rootElement      = elt;
         var head         = _.find(elt.children(), 'tagName', 'THEAD');
+        tHeadAttrs       = head.attributes;
         var body         = _.find(elt.children(), 'tagName', 'TBODY');
+        tBodyAttrs       = body.attributes;
         availableColumns = getAvailableColumns(head, body);
         var headBuilt    = buildHeader(availableColumns);
         var bodyBuilt    = buildBody(availableColumns);
@@ -52,8 +55,10 @@ module.directive('zlTable', ['$compile', '$timeout', function ($compile, $timeou
     }
 
     function getAvailableColumns(thead, tbody) {
-        var row     = _.find(thead.children, 'tagName', 'TR');
-        var bodyRow = _.find(tbody.children, 'tagName', 'TR');
+        var row      = _.find(thead.children, 'tagName', 'TR');
+        headRowAttrs = row.attributes;
+        var bodyRow  = _.find(tbody.children, 'tagName', 'TR');
+        bodyRowAttrs = bodyRow.attributes;
         return _.compact(_.map(row.children, function (c, i) {
             if (!c.attributes.getNamedItem('id')) return;
             return {
@@ -64,8 +69,21 @@ module.directive('zlTable', ['$compile', '$timeout', function ($compile, $timeou
         }));
     }
 
+    function addAttributes(str, attrs) {
+        _.each(attrs, function (attr) {
+            if (attr.name && attr.value) {
+                str += attr.name + '=' + attr.value + ' ';
+            }
+        });
+        return str;
+    }
+
     function buildHeader() {
-        var elt = '<thead><tr><th><input type="checkbox" ng-model="selectAll" ng-click="ctrl.selectAll(selectAll)"/></th>' +
+        var elt = '<thead ';
+        elt = addAttributes(elt, tHeadAttrs);
+        elt += '><tr ';
+        elt = addAttributes(elt, headRowAttrs);
+        elt += '><th><input type="checkbox" ng-model="selectAll" ng-click="ctrl.selectAll(selectAll)"/></th>' +
             '<th ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns" id="{{col.id}}" ng-click="ctrl.order(col.id)" zl-drag-drop drag="col.id" drop="ctrl.dropColumn($data, col.id)">' +
             '<zl-template-compiler template="{{col.headTemplate}}"></zl-template-compiler>' +
             '<button ng-click="ctrl.dismiss(col.id)">x</button>' +
@@ -75,8 +93,11 @@ module.directive('zlTable', ['$compile', '$timeout', function ($compile, $timeou
     }
 
     function buildBody() {
-        var elt = '<tbody>' +
-            '<tr class="noselect" ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
+        var elt = '<tbody ';
+        elt     = addAttributes(elt, tBodyAttrs);
+        elt += '><tr ';
+        elt = addAttributes(elt, bodyRowAttrs);
+        elt += 'class="noselect" ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
             '<td  ng-click="ctrl.selectClick($event, elt)"><input ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" type="checkbox" ng-checked="ctrl.isSelected(elt)"/></td>' +
             '<td ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns"><zl-template-compiler template="{{col.template}}"></zl-template-compiler></td>' +
             '</tr></tbody>';
@@ -104,8 +125,7 @@ module.directive('zlTable', ['$compile', '$timeout', function ($compile, $timeou
                 var new_index = self.columns.indexOf(target);
                 var old_index = self.columns.indexOf(source);
                 self.columns.splice(new_index, 0, self.columns.splice(old_index, 1)[0]);
-
-                compile(rootElement).pre($scope, rootElement);
+                $scope.$apply();
             }
 
             function selectAll(bool) {
@@ -355,7 +375,7 @@ module.directive('zlTemplateCompiler', function ($compile) {
         restrict: 'E',
         link    : function (scope, tElement, tAttrs) {
             var template = '<div style="display:inline;">' + tAttrs.template + '</div>';
-            tElement.append($compile(template)(scope));
+            tElement.replaceWith($compile(template)(scope));
         }
     }
 
