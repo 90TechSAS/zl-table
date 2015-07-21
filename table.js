@@ -69,35 +69,30 @@ module.directive('zlTable', ['$compile', '$timeout', function ($compile, $timeou
         }));
     }
 
-    function addAttributes(str, attrs) {
-        _.each(attrs, function (attr) {
+    function buildAttributes(attrs) {
+         return _.reduce(attrs, function (result, attr) {
             if (attr.name && attr.value) {
-                str += attr.name + '=' + attr.value + ' ';
+                result += attr.name + '=' + attr.value + ' ';
             }
-        });
-        return str;
+             return result;
+        }, '');
     }
 
     function buildHeader() {
-        var elt = '<thead ';
-        elt = addAttributes(elt, tHeadAttrs);
-        elt += '><tr ';
-        elt = addAttributes(elt, headRowAttrs);
-        elt += '><th><input type="checkbox" ng-model="selectAll" ng-click="ctrl.selectAll(selectAll)"/></th>' +
+        var elt = '<thead ' + buildAttributes(tHeadAttrs) + '>' +
+            '<tr ' + buildAttributes(headRowAttrs)+ '>' +
+            '<th><input type="checkbox" ng-model="selectAll" ng-click="ctrl.selectAll(selectAll)"/></th>' +
             '<th ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns" id="{{col.id}}" ng-click="ctrl.order(col.id)" zl-drag-drop drag="col.id" drop="ctrl.dropColumn($data, col.id)">' +
             '<zl-template-compiler template="{{col.headTemplate}}"></zl-template-compiler>' +
-            '<button ng-click="ctrl.dismiss(col.id)">x</button>' +
+            '<button ng-click="ctrl.dismiss(col.id)" class="zl-table-del-btn"></button>' +
             '</th>' +
             '</tr></thead>';
         return elt;
     }
 
     function buildBody() {
-        var elt = '<tbody ';
-        elt     = addAttributes(elt, tBodyAttrs);
-        elt += '><tr ';
-        elt = addAttributes(elt, bodyRowAttrs);
-        elt += 'class="noselect" ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
+        var elt = '<tbody ' + buildAttributes(tBodyAttrs) + '>' +
+            '<tr ' + buildAttributes(bodyRowAttrs) + 'class="noselect" ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
             '<td  ng-click="ctrl.selectClick($event, elt)"><input ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" type="checkbox" ng-checked="ctrl.isSelected(elt)"/></td>' +
             '<td ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns"><zl-template-compiler template="{{col.template}}"></zl-template-compiler></td>' +
             '</tr></tbody>';
