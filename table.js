@@ -22,41 +22,64 @@
 
 'use strict';
 
-angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$timeout', function ($compile, $timeout) {
+var module = angular.module('90TechSAS.zl-table', []);
+
+module.directive('zlTable', ['$compile', '$timeout', function ($compile, $timeout) {
 
     var ID_FIELDS = ['id', '_id', 'uid', 'uuid', '$uid'];
+
+    var availableColumns;
+    var rootElement;
+
+    function compile(elt) {
+        rootElement      = elt;
+        var head         = _.find(elt.children(), 'tagName', 'THEAD');
+        var body         = _.find(elt.children(), 'tagName', 'TBODY');
+        availableColumns = getAvailableColumns(head, body);
+        var headBuilt    = buildHeader(availableColumns);
+        var bodyBuilt    = buildBody(availableColumns);
+
+        return {
+            pre: function (scope, element) {
+                $timeout(function () {
+                    head.remove();
+                    body.remove();
+                });
+                element.append($compile(headBuilt)(scope));
+                element.append($compile(bodyBuilt)(scope));
+            }
+        }
+    }
 
     function getAvailableColumns(thead, tbody) {
         var row     = _.find(thead.children, 'tagName', 'TR');
         var bodyRow = _.find(tbody.children, 'tagName', 'TR');
-        return _.map(row.children, function (c, i) {
+        return _.compact(_.map(row.children, function (c, i) {
+            if (!c.attributes.getNamedItem('id')) return;
             return {
                 id          : c.attributes.getNamedItem('id').value,
                 headTemplate: c.innerHTML,
                 template    : bodyRow.children[i].innerHTML
             };
-        });
+        }));
     }
 
-    function buildHeader(columns) {
-        var elt = '<thead><tr><th><input type="checkbox" ng-model="selectAll" ng-click="ctrl.selectAll(selectAll)"/></th>';
-        _.each(columns, function (child) {
-            elt += '<th ng-click="ctrl.order(\'' + child.id + '\')" ng-if="ctrl.display(\'' + child.id + '\')">';
-            elt += child.headTemplate;
-            elt += '<button ng-click="ctrl.dismiss(\'' + child.id + '\')">x</button>';
-            elt += '</th>';
-        });
+    function buildHeader() {
+        var elt = '<thead><tr><th><input type="checkbox" ng-model="selectAll" ng-click="ctrl.selectAll(selectAll)"/></th>' +
+            '<th ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns" id="{{col.id}}" ng-click="ctrl.order(col.id)" zl-drag-drop drag="col.id" drop="ctrl.dropColumn($data, col.id)">' +
+            '<zl-template-compiler template="{{col.headTemplate}}"></zl-template-compiler>' +
+            '<button ng-click="ctrl.dismiss(col.id)">x</button>' +
+            '</th>' +
+            '</tr></thead>';
         return elt;
     }
 
-    function buildBody(columns) {
+    function buildBody() {
         var elt = '<tbody>' +
             '<tr class="noselect" ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
-            '<td  ng-click="ctrl.selectClick($event, elt)"><input ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" type="checkbox" ng-checked="ctrl.isSelected(elt)"/></td>';
-        _.each(columns, function (c) {
-            elt += '<td ng-if="ctrl.display(\'' + c.id + '\')">' + c.template + '</td>';
-        });
-        elt += '</tr></tbody>';
+            '<td  ng-click="ctrl.selectClick($event, elt)"><input ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" type="checkbox" ng-checked="ctrl.isSelected(elt)"/></td>' +
+            '<td ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns"><zl-template-compiler template="{{col.template}}"></zl-template-compiler></td>' +
+            '</tr></tbody>';
         return elt;
     }
 
@@ -73,26 +96,17 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
             selectionChanged: '&',
             idField         : '@'
         },
-        compile         : function (elt) {
-            var head             = _.find(elt.children(), 'tagName', 'THEAD');
-            var body             = _.find(elt.children(), 'tagName', 'TBODY');
-            var availableColumns = getAvailableColumns(head, body);
-            var headBuilt        = buildHeader(availableColumns);
-            var bodyBuilt        = buildBody(availableColumns);
-
-            return {
-                pre: function (scope, element) {
-                    $timeout(function () {
-                        head.remove();
-                        body.remove();
-                    });
-                    element.append($compile(headBuilt)(scope));
-                    element.append($compile(bodyBuilt)(scope));
-                }
-            }
-        },
-        controller      : function () {
+        compile         : compile,
+        controller      : function ($scope) {
             var self = this;
+
+            function dropColumn(source, target) {
+                var new_index = self.columns.indexOf(target);
+                var old_index = self.columns.indexOf(source);
+                self.columns.splice(new_index, 0, self.columns.splice(old_index, 1)[0]);
+
+                compile(rootElement).pre($scope, rootElement);
+            }
 
             function selectAll(bool) {
                 if (bool) {
@@ -121,7 +135,7 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
 
             function rowClick(event, elt) {
                 if (event.shiftKey) {
-                    if (isSelected(elt)){
+                    if (isSelected(elt)) {
                         return;
                     }
                     var lastClicked = self.selectedData[self.selectedData.length - 1] || getIdValue(self.zlTable[0]);
@@ -184,13 +198,15 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
             }
 
             _.extend(self, {
-                order      : order,
-                display    : display,
-                dismiss    : dismiss,
-                rowClick   : rowClick,
-                isSelected : isSelected,
-                selectClick: selectClick,
-                selectAll  : selectAll
+                order           : order,
+                display         : display,
+                dismiss         : dismiss,
+                rowClick        : rowClick,
+                isSelected      : isSelected,
+                selectClick     : selectClick,
+                selectAll       : selectAll,
+                dropColumn      : dropColumn,
+                availableColumns: availableColumns
             });
 
             init();
@@ -200,7 +216,7 @@ angular.module('90TechSAS.zl-table', []).directive('zlTable', ['$compile', '$tim
 }]);
 
 
-angular.module('90TechSAS.zl-table').directive('zlPaginate', ['$compile', '$timeout', function ($compile, $timeout) {
+module.directive('zlPaginate', ['$compile', '$timeout', function ($compile, $timeout) {
 
     return {
         restrict        : 'E',
@@ -248,3 +264,109 @@ angular.module('90TechSAS.zl-table').directive('zlPaginate', ['$compile', '$time
         }
     }
 }]);
+
+module.directive('zlDragDrop', function () {
+    return {
+
+        controller      : function () {
+        },
+        scope           : {},
+        controllerAs    : 'dragDropCtrl',
+        bindToController: {
+            drag: '=',
+            drop: '&'
+        },
+        link            : function (scope, element) {
+            var el = element[0];
+
+            if (scope.dragDropCtrl.drag) {
+
+                el.draggable = true;
+
+                el.addEventListener(
+                    'dragstart',
+                    function (e) {
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('Text', scope.dragDropCtrl.drag);
+                        this.classList.add('drag');
+                        return false;
+                    },
+                    false
+                );
+
+                el.addEventListener(
+                    'dragend',
+                    function (e) {
+                        this.classList.remove('drag');
+                        return false;
+                    },
+                    false
+                );
+
+                el.addEventListener(
+                    'dragover',
+                    function (e) {
+                        e.dataTransfer.dropEffect = 'move';
+                        if (e.preventDefault) e.preventDefault();
+                        this.classList.add('over');
+                        return false;
+                    },
+                    false
+                );
+            }
+
+            if (scope.dragDropCtrl.drop) {
+
+                el.addEventListener(
+                    'drop',
+                    function (e) {
+                        if (e.stopPropagation) e.stopPropagation();
+                        this.classList.remove('over');
+                        scope.dragDropCtrl.drop({$data: e.dataTransfer.getData('Text'), $event: e});
+                        return false;
+                    },
+                    false
+                );
+
+                el.addEventListener(
+                    'dragenter',
+                    function (e) {
+                        this.classList.add('over');
+                        return false;
+                    },
+                    false
+                );
+
+                el.addEventListener(
+                    'dragleave',
+                    function (e) {
+                        this.classList.remove('over');
+                        return false;
+                    },
+                    false
+                );
+            }
+        }
+    }
+});
+
+module.directive('zlTemplateCompiler', function ($compile) {
+    return {
+        restrict: 'E',
+        link    : function (scope, tElement, tAttrs) {
+            var template = '<div style="display:inline;">' + tAttrs.template + '</div>';
+            tElement.append($compile(template)(scope));
+        }
+    }
+
+});
+
+module.filter('zlColumnFilter', function () {
+    return function (allColumns, columnList) {
+        return _.sortBy(_.reject(allColumns, function (col) {
+            return !_.includes(columnList, col.id);
+        }), function (col) {
+            return columnList.indexOf(col.id);
+        });
+    }
+});

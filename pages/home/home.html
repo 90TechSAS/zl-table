@@ -14,9 +14,9 @@
             <th id="phone">Phone</th>
             <th id="email">Email</th>
             <th id="company">Company</th>
-            <th id="name.first">First Name</th>
+            <th id="name.first">First Name </th>
             <th id="name.last">Last Name</th>
-            <th id="eyeColor">Eye Color</th>
+            <th id="eyeColor">or</th>
             <th id="age">Age</th>
             <th id="picture">Picture</th>
             <th id="balance">Balance</th>
@@ -32,10 +32,9 @@
             <td>{{elt.greeting}}</td>
             <td>{{elt.friends.length}}</td>
             <td>
-
                 <span ng-repeat="tag in elt.tags track by $index" class="label label-info" style="margin:0 1% 0 1%">
                     {{tag}}
-                </span>
+                 </span>
             </td>
             <td>{{elt.longitude}}</td>
             <td>{{elt.latitude}}</td>
@@ -60,7 +59,8 @@
     </table>
 
 
-    <zl-paginate  update="home.update($pagination)" pagination="home.pagination"></zl-paginate>
-    <br><span ng-show="home.selected.length">{{home.selected.length}} selected elements</span>
-
+    <zl-paginate update="home.update($pagination)" pagination="home.pagination"></zl-paginate>
+    <br><span ng-show="home.selected.length">{{home.selected.length}} selected elements </span>
 </div>
+
+

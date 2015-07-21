@@ -5,9 +5,9 @@
 
 angular.module('myApp').controller('HomeCtrl', ['$scope', '$http', '$q', function ($scope, $http) {
     var self    = this;
-    self.columns = ['name','favoriteFruit', 'greeting', 'friends', 'tags', 'name.first', 'name.last'];
+    self.columns = ['greeting', 'favoriteFruit',  'friends', 'tags', 'name.first', 'name.last'];
     self.update = function (pagination) {
-        $http.get('http://beta.json-generator.com/api/json/get/EkdQWJIt').success(function (data) {
+        $http.get(/*'http://beta.json-generator.com/api/json/get/EkdQWJIt'*/ 'http://www.json-generator.com/api/json/get/bTqDEPaTsi?indent=2').success(function (data) {
             // Simulate server side pagination
             var begin = pagination.currentPage * pagination.perPage;
             var end =  (pagination.currentPage+1)*pagination.perPage;
