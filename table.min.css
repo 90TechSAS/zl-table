@@ -1,1 +1,1 @@
-.zl-row-selected{background-color:red}.noselect{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+.zl-table-del-btn:after{content:'X'}.zl-row-selected{background-color:darkslategrey;color:#fff}.noselect{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
