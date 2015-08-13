@@ -10,8 +10,3 @@
   -ms-user-select: none;
   user-select: none;
 }
-
-.zl-table-del-btn:after{
-  content: 'X';
-
-}

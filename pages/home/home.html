@@ -1,5 +1,10 @@
 <div ng-controller='HomeCtrl as home'>
-    <table zl-table="home.data" class="table" update="home.update($pagination)" selected-data="home.selected" pagination="home.pagination" columns="home.columns">
+
+
+    <button ng-click="gridMode = !gridMode">Grid Mode</button>
+
+    <table zl-table="home.data" class="table" update="home.update($pagination)" selected-data="home.selected"
+           pagination="home.pagination" columns="home.columns" grid-template="gridTemplate" grid-mode="gridMode">
         <thead>
         <tr>
             <th id="favoriteFruit">Favorite Fruit</th>
@@ -14,7 +19,7 @@
             <th id="phone">Phone</th>
             <th id="email">Email</th>
             <th id="company">Company</th>
-            <th id="name.first">First Name </th>
+            <th id="name.first">First Name</th>
             <th id="name.last">Last Name</th>
             <th id="eyeColor">or</th>
             <th id="age">Age</th>
@@ -61,6 +66,21 @@
 
     <zl-paginate update="home.update($pagination)" pagination="home.pagination"></zl-paginate>
     <br><span ng-show="home.selected.length">{{home.selected.length}} selected elements </span>
+
+
+    <script type="text/ng-template" id="gridTemplate">
+        <div class="panel panel-default" style="width:400px; margin-bottom:0;  background-color: inherit;">
+            <div class="panel-body" style="background-color: inherit;">
+
+                <h1>{{elt.name.first}} {{elt.name.last}}</h1>
+
+                <p>{{elt.age}} yo</p>
+            </div>
+        </div>
+    </script>
+
 </div>
+
+
 
 
