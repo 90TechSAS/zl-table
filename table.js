@@ -101,7 +101,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
     function buildHeader(){
         var elt = '<thead ng-if="!ctrl.gridMode"' + buildAttributes(tHeadAttrs) + '>' +
             '<tr ' + buildAttributes(headRowAttrs) + '>' +
-            '<th ng-click="ctrl.selectAll()"><input type="checkbox" ng-click="ctrl.selectAll()" ng-checked="ctrl.areAllSelected()"/><label></label></th>' +
+            '<th ng-click="ctrl.selectAll()"><input type="checkbox" ng-click="ctrl.selectAll(); $event.stopImmediatePropagation()" ng-checked="ctrl.areAllSelected()"/><label></label></th>' +
             '<th ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns" id="{{col.id}}" ng-click="ctrl.order(col.id)" zl-drag-drop drag="col.id" drop="ctrl.dropColumn($data, col.id)">' +
             '<zl-template-compiler template="{{col.headTemplate}}"></zl-template-compiler>' +
             '&nbsp;<button ng-click="ctrl.dismiss(col.id)" class="zl-table-del-btn"></button>' +
