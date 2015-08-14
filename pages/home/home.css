@@ -1,0 +1,16 @@
+
+.zl-row-selected .card {
+    background-color: darkslategrey !important;
+    color: white;
+}
+
+
+tr.zl-row-selected {
+    background-color: darkslategrey !important;
+    color: white;
+
+}
+
+td {
+    border-radius: 0 !important;
+}

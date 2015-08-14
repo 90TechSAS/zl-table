@@ -2,10 +2,6 @@
 .zl-table-del-btn:after {
   content: 'X';
 }
-.zl-row-selected {
-  background-color: darkslategrey;
-  color: white;
-}
 .noselect {
   -webkit-touch-callout: none;
   -webkit-user-select: none;

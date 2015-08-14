@@ -7,6 +7,10 @@
   "description": "Demo",
   "keywords": [],
   "license": "MIT",
+  "main":[
+    "table.min.js",
+    "table.min.css"
+  ],
   "ignore": [
     "**/.*",
     "node_modules",

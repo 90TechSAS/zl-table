@@ -60,7 +60,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
                         'ng-click="ctrl.selectClick($event, elt)">' +
                         '<zl-template-compiler ' +
                         'template="' + escapeQuotes($templateCache.get(rootElement[0].attributes.getNamedItem('grid-template').value)) + '"></zl-template-compiler>' +
-                        '</div>'+
+                        '</div>' +
                         '</div>' +
                         '<div style="clear:both;"></div>';
                     element.after($compile(bodyGrid)(scope));
@@ -101,7 +101,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
     function buildHeader(){
         var elt = '<thead ng-if="!ctrl.gridMode"' + buildAttributes(tHeadAttrs) + '>' +
             '<tr ' + buildAttributes(headRowAttrs) + '>' +
-            '<th><input type="checkbox" ng-model="selectAll" ng-click="ctrl.selectAll(selectAll)"/></th>' +
+            '<th ng-click="ctrl.selectAll()"><input type="checkbox" ng-click="ctrl.selectAll()" ng-checked="ctrl.areAllSelected()"/><label></label></th>' +
             '<th ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns" id="{{col.id}}" ng-click="ctrl.order(col.id)" zl-drag-drop drag="col.id" drop="ctrl.dropColumn($data, col.id)">' +
             '<zl-template-compiler template="{{col.headTemplate}}"></zl-template-compiler>' +
             '&nbsp;<button ng-click="ctrl.dismiss(col.id)" class="zl-table-del-btn"></button>' +
@@ -112,8 +112,8 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
 
     function buildBody(){
         var elt = '<tbody ng-if="!ctrl.gridMode"' + buildAttributes(tBodyAttrs) + '>' +
-            '<tr ' + buildAttributes(bodyRowAttrs) + 'class="noselect" ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
-            '<td  ng-click="ctrl.selectClick($event, elt)"><input ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" type="checkbox" ng-checked="ctrl.isSelected(elt)"/></td>' +
+            '<tr ' + buildAttributes(bodyRowAttrs) + 'class="noselect" ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.pagination.orderBy:ctrl.pagination.reverse" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
+            '<td  ng-click="ctrl.selectClick($event, elt)"><input ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" type="checkbox" ng-checked="ctrl.isSelected(elt)"/><label></label></td>' +
             '<td ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns"><zl-template-compiler template="{{col.template}}"></zl-template-compiler></td>' +
             '</tr></tbody>';
         return elt;
@@ -145,8 +145,8 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
                 $scope.$apply();
             }
 
-            function selectAll(bool){
-                if (bool){
+            function selectAll(){
+                if (!areAllSelected()){
                     self.selectedData = _.map(self.zlTable, function(el){
                         return el[self.idField];
                     });
@@ -154,6 +154,13 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
                     self.selectedData = [];
                 }
             }
+
+            function areAllSelected(){
+                return !_.difference(_.map(self.zlTable, function(el){
+                    return el[self.idField]
+                }), self.selectedData).length;
+            }
+
 
             function selectClick(event, elt){
                 if (event.shiftKey && !isSelected(elt)){
@@ -222,7 +229,8 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
 
             function order(name){
                 self.pagination.orderBy = name;
-                self.pagination.reverse = !this.reverse;
+                this.reverse = !this.reverse;
+                self.pagination.reverse = this.reverse;
                 updateCall();
             }
 
@@ -243,7 +251,8 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
                 selectClick     : selectClick,
                 selectAll       : selectAll,
                 dropColumn      : dropColumn,
-                availableColumns: availableColumns
+                availableColumns: availableColumns,
+                areAllSelected  : areAllSelected
             });
 
             init();
@@ -259,9 +268,9 @@ module.directive('zlPaginate', ['$compile', '$timeout', function($compile, $time
         restrict        : 'E',
         controllerAs    : 'paginationCtrl',
         scope           : {},
-        template        : '<button ng-if="paginationCtrl.pagination.currentPage != 0" ng-click="paginationCtrl.previousPage()">&lt;</button>' +
-        '<button ng-repeat="elt in paginationCtrl.paginateArray() track by $index" ng-click="paginationCtrl.page($index)">{{$index +1}}</button>' +
-        '<button ng-if="paginationCtrl.pagination.currentPage < paginationCtrl.paginateArray().length -1" ng-click="paginationCtrl.nextPage()">&gt;</button>',
+        template        : '<button class="waves-effect waves-teal btn-flat" ng-if="paginationCtrl.pagination.currentPage != 0" ng-click="paginationCtrl.previousPage()">&lt;</button>' +
+        '<button class="waves-effect waves-teal btn-flat" ng-repeat="elt in paginationCtrl.paginateArray() track by $index" ng-click="paginationCtrl.page($index)">{{$index +1}}</button>' +
+        '<button class="waves-effect waves-teal btn-flat" ng-if="paginationCtrl.pagination.currentPage < paginationCtrl.paginateArray().length -1" ng-click="paginationCtrl.nextPage()">&gt;</button>',
         bindToController: {
             update    : '&',
             pagination: '='
