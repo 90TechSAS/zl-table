@@ -273,7 +273,7 @@ module.directive('zlPaginate', ['$compile', '$timeout', function($compile, $time
         '<button class="waves-effect waves-teal btn-flat" ng-if="paginationCtrl.pagination.currentPage < paginationCtrl.paginateArray().length -1" ng-click="paginationCtrl.nextPage()">&gt;</button>',
         bindToController: {
             update    : '&',
-            pagination: '='
+            pagination: '=zlPagination'
         },
         controller      : function(){
 
