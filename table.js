@@ -132,6 +132,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
             selectionChanged: '&',
             gridMode        : '=',
             gridTemplate    : '=',
+            rowClickFn        : '&zlRowClick',
             idField         : '@'
         },
         compile         : compile,
@@ -196,6 +197,10 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
                         self.selectedData.push(getIdValue(elt));
                     }
                     self.selectionChanged({$selectedData: self.selectedData});
+                } else {
+                    if (self.rowClickFn){
+                        self.rowClickFn({$event: event, $elt: elt});
+                    }
                 }
             }
 
@@ -229,7 +234,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
 
             function order(name){
                 self.pagination.orderBy = name;
-                this.reverse = !this.reverse;
+                this.reverse            = !this.reverse;
                 self.pagination.reverse = this.reverse;
                 updateCall();
             }
