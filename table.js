@@ -127,7 +127,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
             zlTable         : '=',
             columns         : '=',
             update          : '&',
-            pagination      : '=',
+            pagination      : '=zlPagination',
             selectedData    : '=',
             selectionChanged: '&',
             gridMode        : '=',
