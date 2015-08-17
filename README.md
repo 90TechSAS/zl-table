@@ -72,9 +72,9 @@ Params: $selectedData, the selected-data array
 boolean. Should the table display in grid mode instead
 - **grid-template**
 string. The id of the angular template used for displaying the grid.
-- ** row-click-fn **
+- **row-click-fn**
 Callback for when the user clicks on a row.
-- ** id-field **
+- **id-field**
 The key of the field to be used as an id for the selection of elements.
     
  
