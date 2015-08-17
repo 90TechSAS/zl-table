@@ -106,7 +106,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
             'id="{{col.id}}" ng-click="ctrl.order(col.id)" ' +
             'zl-drag-drop zl-drag="col.id" ' +
             'zl-drop="ctrl.dropColumn($data, col.id)"' +
-            'ng-class="{\'zl-col-ordered\': ctrl.pagination.orderBy == col.id, \'zl-col-reverse\': ctrl.pagination.reverse}"' +
+            'ng-class="{\'zl-col-ordered\': ctrl.pagination.orderBy == col.id, \'zl-col-reverse\': ctrl.pagination.orderBy == col.id && ctrl.pagination.reverse}"' +
             '>' +
             '<zl-template-compiler template="{{col.headTemplate}}"></zl-template-compiler>' +
             '&nbsp;<button ng-click="ctrl.dismiss(col.id)" class="zl-table-del-btn"></button>' +
