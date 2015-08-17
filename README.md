@@ -5,6 +5,11 @@ This module allows you to display tables and play with multiple datasources and 
 ## Requirements
 - AngularJS 1.3
 
+## Features
+- Line selection (with multi-select and alt key support)
+- Live columns adding, deleting, and reordering via drag and drop
+- Grid mode display
+
 ## Usage
 Directly from [Bower](http://bower.io/).
 
