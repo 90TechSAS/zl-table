@@ -2,6 +2,8 @@
 
 This module allows you to display tables and play with multiple datasources and filters.
 
+[Demo](http://90techsas.github.io/zl-table/)
+
 ## Requirements
 - AngularJS 1.3
 
