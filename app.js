@@ -19,8 +19,8 @@ config(['$routeProvider', '$locationProvider', '$compileProvider', function($rou
 	// var staticPath ='/';
 	var staticPath;
 	// staticPath ='/angular-directives/zl-table/';		//local
-	staticPath ='/';		//nodejs (local)
-	 //staticPath ='/zl-table/';		//gh-pages
+	//staticPath ='/';		//nodejs (local)
+	 staticPath ='/zl-table/';		//gh-pages
 	var appPathRoute ='/';
 	var pagesPath =staticPath+'pages/';
 	

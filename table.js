@@ -35,8 +35,14 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
     function compile(elt){
         rootElement      = elt;
         var head         = _.find(elt.children(), 'tagName', 'THEAD');
+        if (!head){
+            throw('zl-table: The table should have one thead child');
+        }
         tHeadAttrs       = head.attributes;
         var body         = _.find(elt.children(), 'tagName', 'TBODY');
+        if (!body){
+            throw('zl-table: The table should have one tbody child');
+        }
         tBodyAttrs       = body.attributes;
         availableColumns = getAvailableColumns(head, body);
         var headBuilt    = buildHeader(availableColumns);
@@ -76,11 +82,19 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
 
     function getAvailableColumns(thead, tbody){
         var row      = _.find(thead.children, 'tagName', 'TR');
+        if (!row){
+            throw('zl-table: The thead element should have one tr child');
+        }
         headRowAttrs = row.attributes;
         var bodyRow  = _.find(tbody.children, 'tagName', 'TR');
+        if (!bodyRow){
+            throw('zl-table: The tbody element should have one tr child');
+        }
         bodyRowAttrs = bodyRow.attributes;
         return _.compact(_.map(row.children, function(c, i){
-            if (!c.attributes.getNamedItem('id')) return;
+            if (!c.attributes.getNamedItem('id')){
+                throw('zl-table: The head cells should have an id');
+            }
             return {
                 id          : c.attributes.getNamedItem('id').value,
                 headTemplate: c.innerHTML,
