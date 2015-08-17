@@ -1,51 +1,84 @@
-# AngularJS Customizable tables
+# Angular zlTable, play now with tables
 
-[TODO - brief summary]
+This module allows you to display tables and play with multiple datasources and filters.
 
-## Demo
-http://90TechSAS.github.io/zl-table/
+## Requirements
+- AngularJS 1.3
 
-## Dependencies
-- required:
-	[TODO]
-- optional
-	[TODO]
+## Usage
+Directly from [Bower](http://bower.io/).
 
-See `bower.json` and `index.html` in the `gh-pages` branch for a full list / more details
+ **Care with current version! Still WIP...**
 
-## Install
-1. download the files
-	1. Bower
-		1. add `"zl-table": "latest"` to your `bower.json` file then run `bower install` OR run `bower install zl-table`
-2. include the files in your app
-	1. `e.min.js`
-	2. `e.less` OR `e.min.css` OR `e.css`
-3. include the module in angular (i.e. in `app.js`) - `90TechSAS.zl-table`
+```sh
+bower install zl-table
+```
 
-See the `gh-pages` branch, files `bower.json` and `index.html` for a full example.
+```html
+<table zl-table="myData" 
+    update="updateFunction($pagination)" 
+    selected-data="selected"
+    zl-pagination="pagination" 
+    columns="columns" 
+    grid-template="gridTemplate" 
+    grid-mode="gridMode"
+    zl-row-click="click($event, $elt)"
+    >
+        <thead>
+        <tr>
+            <th id="favoriteFruit">Favorite Fruit</th>
+            <th id="greeting">Greeting</th>
+            <th id="friends">Friends</th>
+            <th id="tags">Tags</th>
+           
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{elt.favoriteFruit}}</td>
+            <td>{{elt.greeting}}</td>
+            <td>{{elt.friends.length}}</td>
+            <td>
+                <span ng-repeat="tag in elt.tags track by $index" class="label label-info" style="margin:0 1% 0 1%">
+                    {{tag}}
+                 </span>
+            </td>
+           
+        </tr>
+        </tbody>
+</table>
+```
+
+## Parameters
+- **zl-table**
+Main attribute. Contains the data you wish to display.
+- **update**
+Function to be called when pagination changes. This function is responsible for the data updates
+Param: 
+	**$pagination**: the pagination object you passed to the directive
+- **zl-pagination**
+two-way bound object to communicate the pagination to the directive.
+	* **currentPage** (int) 0 indexed
+	* **perPage** (int) number of elements per page
+	* **totalElements** (int) the update function is responsible for updating the totalElements count since the directive has no way to figure it out
+- **columns**
+A sorted array containing the columns you want to display in order. Columns are identified by the id you have set in the <th> elements. This array is two-way bound so that if the user drags and drops a column, you will be notified.
+- **selected-data**
+An array containing the ids of the elements the user has selected. Two-way bound, so you can pre-select data. And get the selected data anytime.
+- **selection-changed**
+Callback function called when the user selects an element.
+Params: $selectedData, the selected-data array
+- **grid-mode**
+boolean. Should the table display in grid mode instead
+- **grid-template**
+string. The id of the angular template used for displaying the grid.
+- ** row-click-fn **
+Callback for when the user clicks on a row.
+- ** id-field **
+The key of the field to be used as an id for the selection of elements.
+    
+ 
+            
+    
 
 
-## Documentation
-See the `e.js` file top comments for usage examples and documentation
-https://github.com/90TechSAS/zl-table/blob/master/e.js
-
-
-## Development
-
-1. `git checkout gh-pages`
-	1. run `npm install && bower install`
-	2. write your code then run `grunt`
-	3. git commit your changes
-2. copy over core files (.js and .css/.less for directives) to master branch
-	1. `git checkout master`
-	2. `git checkout gh-pages e.js e.min.js e.less e.css e.min.css`
-3. update README, CHANGELOG, bower.json, and do any other final polishing to prepare for publishing
-	1. git commit changes
-	2. git tag with the version number, i.e. `git tag v1.0.0`
-4. create github repo and push
-	1. [if remote does not already exist or is incorrect] `git remote add origin [github url]`
-	2. `git push origin master --tags` (want to push master branch first so it is the default on github)
-	3. `git checkout gh-pages`
-	4. `git push origin gh-pages`
-5. (optional) register bower component
-	1. `bower register zl-table [git repo url]`
