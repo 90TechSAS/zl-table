@@ -138,6 +138,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
         compile         : compile,
         controller      : function($scope){
             var self = this;
+            $scope.$watch(function(){return self.pagination}, init , true);
 
             function dropColumn(source, target){
                 var new_index = self.columns.indexOf(target);
@@ -224,6 +225,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
                 self.update({$pagination: self.pagination});
             }
 
+
             function init(){
                 self.pagination             = self.pagination || {};
                 self.pagination.currentPage = self.pagination.currentPage || 0;
@@ -231,6 +233,8 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
                 self.selectedData           = self.selectedData || [];
                 updateCall();
             }
+
+
 
             function order(name){
                 self.pagination.orderBy = name;
