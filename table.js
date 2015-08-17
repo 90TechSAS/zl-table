@@ -339,7 +339,7 @@ module.directive('zlDragDrop', function(){
         link            : function(scope, element){
             var el = element[0];
 
-            if (scope.dragDropCtrl.drag){
+            if (scope.dragDropCtrl.zlDrag){
 
                 el.draggable = true;
 
@@ -347,7 +347,7 @@ module.directive('zlDragDrop', function(){
                     'dragstart',
                     function(e){
                         e.dataTransfer.effectAllowed = 'move';
-                        e.dataTransfer.setData('Text', scope.dragDropCtrl.drag);
+                        e.dataTransfer.setData('Text', scope.dragDropCtrl.zlDrag);
                         this.classList.add('drag');
                         return false;
                     },
@@ -375,14 +375,14 @@ module.directive('zlDragDrop', function(){
                 );
             }
 
-            if (scope.dragDropCtrl.drop){
+            if (scope.dragDropCtrl.zlDrop){
 
                 el.addEventListener(
                     'drop',
                     function(e){
                         if (e.stopPropagation) e.stopPropagation();
                         this.classList.remove('over');
-                        scope.dragDropCtrl.drop({$data: e.dataTransfer.getData('Text'), $event: e});
+                        scope.dragDropCtrl.zlDrop({$data: e.dataTransfer.getData('Text'), $event: e});
                         return false;
                     },
                     false
