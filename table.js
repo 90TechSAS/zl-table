@@ -131,7 +131,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
 
     function buildBody(){
         var elt = '<tbody ng-if="!ctrl.gridMode"' + buildAttributes(tBodyAttrs) + '>' +
-            '<tr ' + buildAttributes(bodyRowAttrs) + 'class="noselect" ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.pagination.orderBy:ctrl.pagination.reverse" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
+            '<tr ' + buildAttributes(bodyRowAttrs) + 'class="noselect" ng-repeat="elt in ctrl.zlTable" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
             '<td  ng-click="ctrl.selectClick($event, elt)"><input ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" type="checkbox" ng-checked="ctrl.isSelected(elt)"/><label></label></td>' +
             '<td ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns"><zl-template-compiler template="{{col.template}}"></zl-template-compiler></td>' +
             '</tr></tbody>';
