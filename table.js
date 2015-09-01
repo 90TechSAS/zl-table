@@ -77,7 +77,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
     }
 
     function escapeQuotes(str){
-        return str.replace(/"/g, '&quot;');
+        if (str) return str.replace(/"/g, '&quot;');
     }
 
     function getAvailableColumns(thead, tbody){
