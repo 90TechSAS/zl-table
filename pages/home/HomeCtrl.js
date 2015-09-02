@@ -5,7 +5,16 @@
 
 angular.module('myApp').controller('HomeCtrl', ['$scope', '$http', '$q', function ($scope, $http) {
     var self    = this;
-    self.columns = ['greeting', 'favoriteFruit',  'friends', 'tags', 'name.first', 'name.last'];
+    self.columns = [
+        {id: 'favoriteFruit', visible:true},
+        {id: 'greeting', visible:true},
+        {id: 'friends', visible:true},
+        {id: 'tags', visible:true},
+        {id: 'name.first', visible:true},
+        {id: 'name.last', visible:true},
+    ];
+
+    $scope.$watch(function(){return self.columns;}, function(val){console.info(val);});
     self.pagination = {};
     self.click= function(event, elt){
         console.info(event, elt);
