@@ -116,7 +116,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
     function buildHeader(){
         var elt = '<thead ng-if="!ctrl.gridMode"' + buildAttributes(tHeadAttrs) + '>' +
             '<tr ' + buildAttributes(headRowAttrs) + '>' +
-            '<th ng-click="ctrl.selectAll()"><input type="checkbox" ng-click="ctrl.selectAll(); $event.stopImmediatePropagation()" ng-checked="ctrl.areAllSelected()"/><label></label></th>' +
+            '<th ng-click="ctrl.selectAll()" ng-if="ctrl.selectedData"><input type="checkbox" ng-click="ctrl.selectAll(); $event.stopImmediatePropagation()" ng-checked="ctrl.areAllSelected()"/><label></label></th>' +
             '<th ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns" ' +
             'id="{{col.id}}" ng-click="ctrl.order(col.id)" ' +
             'zl-drag-drop zl-drag="col.id" ' +
@@ -133,7 +133,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
     function buildBody(){
         var elt = '<tbody ng-if="!ctrl.gridMode"' + buildAttributes(tBodyAttrs) + '>' +
             '<tr ' + buildAttributes(bodyRowAttrs) + 'class="noselect" ng-repeat="elt in ctrl.zlTable" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
-            '<td  ng-click="ctrl.selectClick($event, elt)"><input ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" type="checkbox" ng-checked="ctrl.isSelected(elt)"/><label></label></td>' +
+            '<td ng-if="ctrl.selectedData" ng-click="ctrl.selectClick($event, elt)"><input ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" type="checkbox" ng-checked="ctrl.isSelected(elt)"/><label></label></td>' +
             '<td ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns"><zl-template-compiler template="{{col.template}}"></zl-template-compiler></td>' +
             '</tr></tbody>';
         return elt;
@@ -254,7 +254,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
                 self.pagination             = self.pagination || {};
                 self.pagination.currentPage = self.pagination.currentPage || 0;
                 self.pagination.perPage     = self.pagination.perPage || 10;
-                self.selectedData           = self.selectedData || [];
+                //self.selectedData           = self.selectedData || [];
                 updateCall();
             }
 

@@ -5,13 +5,14 @@
 
 angular.module('myApp').controller('HomeCtrl', ['$scope', '$http', '$q', function ($scope, $http) {
     var self    = this;
+
     self.columns = [
         {id: 'favoriteFruit', visible:true},
         {id: 'greeting', visible:true},
         {id: 'friends', visible:true},
         {id: 'tags', visible:true},
         {id: 'name.first', visible:true},
-        {id: 'name.last', visible:true},
+        {id: 'name.last', visible:true}
     ];
 
     $scope.$watch(function(){return self.columns;}, function(val){console.info(val);});

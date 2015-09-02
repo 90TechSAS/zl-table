@@ -1,9 +1,14 @@
 <div ng-controller='HomeCtrl as home'>
 
+    <div>
+        <ul>
+            <li ng-repeat="col in home.columns">&nbsp;<input type="checkbox" ng-disabled="false" ng-checked="col.visible" ng-click="col.visible=!col.visible"><label>{{col.id}}</label></li>
+        </ul>
+    </div>
 
     <button class="btn" ng-click="gridMode = !gridMode">Grid Mode</button>
 
-    <table zl-table="home.data" class="table" update="home.update($pagination)" selected-data="home.selected"
+    <table zl-table="home.data" class="table" update="home.update($pagination)"
            zl-pagination="home.pagination" columns="home.columns" grid-template="gridTemplate" grid-mode="gridMode"
             zl-row-click="home.click($event, $elt)">
         <thead>
