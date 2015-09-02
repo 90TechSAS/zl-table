@@ -33,13 +33,13 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
     var tHeadAttrs, tBodyAttrs, headRowAttrs, bodyRowAttrs;
 
     function compile(elt){
-        rootElement      = elt;
-        var head         = _.find(elt.children(), 'tagName', 'THEAD');
+        rootElement = elt;
+        var head    = _.find(elt.children(), 'tagName', 'THEAD');
         if (!head){
             throw('zl-table: The table should have one thead child');
         }
-        tHeadAttrs       = head.attributes;
-        var body         = _.find(elt.children(), 'tagName', 'TBODY');
+        tHeadAttrs = head.attributes;
+        var body   = _.find(elt.children(), 'tagName', 'TBODY');
         if (!body){
             throw('zl-table: The table should have one tbody child');
         }
@@ -60,16 +60,18 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
 
                 element.append($compile(bodyBuilt)(scope));
                 $timeout(function(){
-                    bodyGrid = '<div ng-if="ctrl.gridMode">' +
-                        '<div class="noselect" style="max-width:400px; float:left;margin:1%;" ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse"' +
-                        'ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}"' +
-                        'ng-click="ctrl.selectClick($event, elt)">' +
-                        '<zl-template-compiler ' +
-                        'template="' + escapeQuotes($templateCache.get(rootElement[0].attributes.getNamedItem('grid-template').value)) + '"></zl-template-compiler>' +
-                        '</div>' +
-                        '</div>' +
-                        '<div style="clear:both;"></div>';
-                    element.after($compile(bodyGrid)(scope));
+                    if (rootElement[0].attributes.getNamedItem("grid-template") != null){
+                        bodyGrid = '<div ng-if="ctrl.gridMode">' +
+                            '<div class="noselect" style="max-width:400px; float:left;margin:1%;" ng-repeat="elt in ctrl.zlTable | orderBy:ctrl.orderBy:ctrl.reverse"' +
+                            'ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}"' +
+                            'ng-click="ctrl.selectClick($event, elt)">' +
+                            '<zl-template-compiler ' +
+                            'template="' + escapeQuotes($templateCache.get(rootElement[0].attributes.getNamedItem('grid-template').value)) + '"></zl-template-compiler>' +
+                            '</div>' +
+                            '</div>' +
+                            '<div style="clear:both;"></div>';
+                        element.after($compile(bodyGrid)(scope));
+                    }
                 });
 
             }
@@ -81,7 +83,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
     }
 
     function getAvailableColumns(thead, tbody){
-        var row      = _.find(thead.children, 'tagName', 'TR');
+        var row = _.find(thead.children, 'tagName', 'TR');
         if (!row){
             throw('zl-table: The thead element should have one tr child');
         }
@@ -151,13 +153,17 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
             selectionChanged: '&',
             gridMode        : '=',
             gridTemplate    : '=',
-            rowClickFn        : '&zlRowClick',
+            rowClickFn      : '&zlRowClick',
             idField         : '@'
         },
         compile         : compile,
         controller      : function($scope){
             var self = this;
-            $scope.$watchGroup([function(){return self.pagination.perPage;}, function(){return self.pagination.currentPage;}], init , true);
+            $scope.$watchGroup([function(){
+                return self.pagination.perPage;
+            }, function(){
+                return self.pagination.currentPage;
+            }], init, true);
 
             function dropColumn(source, target){
                 var new_index = self.columns.indexOf(target);
@@ -217,7 +223,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
                         self.selectedData.push(getIdValue(elt));
                     }
                     self.selectionChanged({$selectedData: self.selectedData});
-                } else {
+                } else{
                     if (self.rowClickFn){
                         self.rowClickFn({$event: event, $elt: elt});
                     }
@@ -252,7 +258,6 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
                 self.selectedData           = self.selectedData || [];
                 updateCall();
             }
-
 
 
             function order(name){
