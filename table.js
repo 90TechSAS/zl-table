@@ -165,8 +165,8 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
             }], init, true);
 
             function dropColumn(source, target){
-                var new_index = self.columns.indexOf(target);
-                var old_index = self.columns.indexOf(source);
+                var new_index = _.findIndex(self.columns, {id:target});
+                var old_index = _.findIndex(self.columns, {id:source});
                 self.columns.splice(new_index, 0, self.columns.splice(old_index, 1)[0]);
                 $scope.$apply();
             }
@@ -441,10 +441,11 @@ module.directive('zlTemplateCompiler', function($compile){
 
 module.filter('zlColumnFilter', function(){
     return function(allColumns, columnList){
+        var cols = _.pluck(_.filter(columnList, 'visible'),'id');
         return _.sortBy(_.reject(allColumns, function(col){
-            return !_.includes(columnList, col.id);
+            return !_.includes(cols, col.id);
         }), function(col){
-            return columnList.indexOf(col.id);
+            return cols.indexOf(col.id);
         });
     }
 });
