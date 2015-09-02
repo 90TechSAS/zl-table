@@ -6,6 +6,7 @@
 angular.module('myApp').controller('HomeCtrl', ['$scope', '$http', '$q', function ($scope, $http) {
     var self    = this;
     self.columns = ['greeting', 'favoriteFruit',  'friends', 'tags', 'name.first', 'name.last'];
+    self.pagination = {};
     self.click= function(event, elt){
         console.info(event, elt);
     };
