@@ -49,13 +49,12 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
         var bodyBuilt    = buildBody(availableColumns);
         var bodyGrid;
 
+        head.remove();
+        body.remove();
 
         return {
             pre: function(scope, element){
-                $timeout(function(){
-                    head.remove();
-                    body.remove();
-                });
+
                 element.append($compile(headBuilt)(scope));
 
                 element.append($compile(bodyBuilt)(scope));
