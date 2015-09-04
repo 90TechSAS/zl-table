@@ -7,7 +7,7 @@ angular.module('myApp').controller('HomeCtrl', ['$scope', '$http', '$q', functio
     var self    = this;
 
     self.columns = [
-        {id: 'favoriteFruit', visible:true},
+        {id: 'favoriteFruit', visible:true, sortable:false},
         {id: 'greeting', visible:true},
         {id: 'friends', visible:true},
         {id: 'tags', visible:true},

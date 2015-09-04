@@ -260,6 +260,8 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
 
 
             function order(name){
+                var correspondingColumn = _.find(self.columns, {id: name});
+                if (correspondingColumn && correspondingColumn.sortable === false) return;
                 self.pagination.orderBy = name;
                 this.reverse            = !this.reverse;
                 self.pagination.reverse = this.reverse;
