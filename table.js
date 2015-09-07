@@ -156,7 +156,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
             idField         : '@'
         },
         compile         : compile,
-        controller      : function($scope){
+        controller      : ['$scope', function($scope){
             var self = this;
             $scope.$watchGroup([function(){
                 return self.pagination.perPage;
@@ -291,7 +291,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
 
             //init();
 
-        }
+        }]
     };
 }]);
 
@@ -430,7 +430,7 @@ module.directive('zlDragDrop', function(){
     }
 });
 
-module.directive('zlTemplateCompiler', function($compile){
+module.directive('zlTemplateCompiler', ['compile', function($compile){
     return {
         restrict: 'E',
         link    : function(scope, tElement, tAttrs){
@@ -439,7 +439,7 @@ module.directive('zlTemplateCompiler', function($compile){
         }
     }
 
-});
+}]);
 
 module.filter('zlColumnFilter', function(){
     return function(allColumns, columnList){
