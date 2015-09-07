@@ -430,7 +430,7 @@ module.directive('zlDragDrop', function(){
     }
 });
 
-module.directive('zlTemplateCompiler', ['compile', function($compile){
+module.directive('zlTemplateCompiler', ['$compile', function($compile){
     return {
         restrict: 'E',
         link    : function(scope, tElement, tAttrs){
