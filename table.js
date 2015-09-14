@@ -28,25 +28,23 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
 
     var ID_FIELDS = ['id', '_id', 'uid', 'uuid', '$uid'];
 
-    var availableColumns;
-    var rootElement;
-    var tHeadAttrs, tBodyAttrs, headRowAttrs, bodyRowAttrs;
 
     function compile(elt){
+        var rootElement, bodyRowAttrs, headRowAttrs;
         rootElement = elt;
         var head    = _.find(elt.children(), 'tagName', 'THEAD');
         if (!head){
             throw('zl-table: The table should have one thead child');
         }
-        tHeadAttrs = head.attributes;
-        var body   = _.find(elt.children(), 'tagName', 'TBODY');
+        var tHeadAttrs = head.attributes;
+        var body       = _.find(elt.children(), 'tagName', 'TBODY');
         if (!body){
             throw('zl-table: The table should have one tbody child');
         }
-        tBodyAttrs       = body.attributes;
-        availableColumns = getAvailableColumns(head, body);
-        var headBuilt    = buildHeader(availableColumns);
-        var bodyBuilt    = buildBody(availableColumns);
+        var tBodyAttrs       = body.attributes;
+        var availableColumns = getAvailableColumns(head, body);
+        var headBuilt        = buildHeader(tHeadAttrs, headRowAttrs);
+        var bodyBuilt        = buildBody(tBodyAttrs, bodyRowAttrs);
         var bodyGrid;
 
         head.remove();
@@ -54,6 +52,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
 
         return {
             pre: function(scope, element){
+                scope.availableColumns = availableColumns;
 
                 element.append($compile(headBuilt)(scope));
 
@@ -75,34 +74,34 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
 
             }
         }
+        function getAvailableColumns(thead, tbody){
+            var row = _.find(thead.children, 'tagName', 'TR');
+            if (!row){
+                throw('zl-table: The thead element should have one tr child');
+            }
+            headRowAttrs = row.attributes;
+            var bodyRow  = _.find(tbody.children, 'tagName', 'TR');
+            if (!bodyRow){
+                throw('zl-table: The tbody element should have one tr child');
+            }
+            bodyRowAttrs = bodyRow.attributes;
+            return _.compact(_.map(row.children, function(c, i){
+                if (!c.attributes.getNamedItem('id')){
+                    throw('zl-table: The head cells should have an id');
+                }
+                return {
+                    id          : c.attributes.getNamedItem('id').value,
+                    headTemplate: c.innerHTML,
+                    template    : bodyRow.children[i].innerHTML
+                };
+            }));
+        }
     }
 
     function escapeQuotes(str){
         if (str) return str.replace(/"/g, '&quot;');
     }
 
-    function getAvailableColumns(thead, tbody){
-        var row = _.find(thead.children, 'tagName', 'TR');
-        if (!row){
-            throw('zl-table: The thead element should have one tr child');
-        }
-        headRowAttrs = row.attributes;
-        var bodyRow  = _.find(tbody.children, 'tagName', 'TR');
-        if (!bodyRow){
-            throw('zl-table: The tbody element should have one tr child');
-        }
-        bodyRowAttrs = bodyRow.attributes;
-        return _.compact(_.map(row.children, function(c, i){
-            if (!c.attributes.getNamedItem('id')){
-                throw('zl-table: The head cells should have an id');
-            }
-            return {
-                id          : c.attributes.getNamedItem('id').value,
-                headTemplate: c.innerHTML,
-                template    : bodyRow.children[i].innerHTML
-            };
-        }));
-    }
 
     function buildAttributes(attrs){
         return _.reduce(attrs, function(result, attr){
@@ -113,11 +112,11 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
         }, '');
     }
 
-    function buildHeader(){
+    function buildHeader(tHeadAttrs, headRowAttrs){
         var elt = '<thead ng-if="!ctrl.gridMode"' + buildAttributes(tHeadAttrs) + '>' +
             '<tr ' + buildAttributes(headRowAttrs) + '>' +
             '<th ng-click="ctrl.selectAll()" ng-if="ctrl.selectedData"><input type="checkbox" ng-click="ctrl.selectAll(); $event.stopImmediatePropagation()" ng-checked="ctrl.areAllSelected()"/><label></label></th>' +
-            '<th ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns" ' +
+            '<th ng-repeat="col in availableColumns | zlColumnFilter:ctrl.columns" ' +
             'id="{{col.id}}" ng-click="ctrl.order(col.id)" ' +
             'zl-drag-drop zl-drag="col.id" ' +
             'zl-drop="ctrl.dropColumn($data, col.id)"' +
@@ -130,11 +129,11 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
         return elt;
     }
 
-    function buildBody(){
+    function buildBody(tBodyAttrs, bodyRowAttrs){
         var elt = '<tbody ng-if="!ctrl.gridMode"' + buildAttributes(tBodyAttrs) + '>' +
             '<tr ' + buildAttributes(bodyRowAttrs) + 'class="noselect" ng-repeat="elt in ctrl.zlTable" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
             '<td ng-if="ctrl.selectedData" ng-click="ctrl.selectClick($event, elt)"><input ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" type="checkbox" ng-checked="ctrl.isSelected(elt)"/><label></label></td>' +
-            '<td ng-repeat="col in ctrl.availableColumns | zlColumnFilter:ctrl.columns"><zl-template-compiler template="{{col.template}}"></zl-template-compiler></td>' +
+            '<td ng-repeat="col in availableColumns | zlColumnFilter:ctrl.columns"><zl-template-compiler template="{{col.template}}"></zl-template-compiler></td>' +
             '</tr></tbody>';
         return elt;
     }
@@ -157,6 +156,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
         },
         compile         : compile,
         controller      : ['$scope', function($scope){
+
             var self = this;
             $scope.$watchGroup([function(){
                 return self.pagination.perPage;
@@ -165,8 +165,8 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
             }], init, true);
 
             function dropColumn(source, target){
-                var new_index = _.findIndex(self.columns, {id:target});
-                var old_index = _.findIndex(self.columns, {id:source});
+                var new_index = _.findIndex(self.columns, {id: target});
+                var old_index = _.findIndex(self.columns, {id: source});
                 self.columns.splice(new_index, 0, self.columns.splice(old_index, 1)[0]);
                 $scope.$apply();
             }
@@ -285,7 +285,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
                 selectClick     : selectClick,
                 selectAll       : selectAll,
                 dropColumn      : dropColumn,
-                availableColumns: availableColumns,
+                availableColumns: $scope.availableColumns,
                 areAllSelected  : areAllSelected
             });
 
@@ -443,7 +443,7 @@ module.directive('zlTemplateCompiler', ['$compile', function($compile){
 
 module.filter('zlColumnFilter', function(){
     return function(allColumns, columnList){
-        var cols = _.pluck(_.filter(columnList, 'visible'),'id');
+        var cols = _.pluck(_.filter(columnList, 'visible'), 'id');
         return _.sortBy(_.reject(allColumns, function(col){
             return !_.includes(cols, col.id);
         }), function(col){
