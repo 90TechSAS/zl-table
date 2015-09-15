@@ -173,7 +173,6 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function(
             }
 
             function isSortable(col){
-                console.info(_.find(self.columns, {id: col.id}));
                 return _.find(self.columns, {id: col.id}).sortable !== false;
             }
 
