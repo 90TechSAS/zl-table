@@ -358,6 +358,13 @@ module.directive('zlDragDrop', function () {
     link: function (scope, element) {
       var el = element[0]
 
+      window.addEventListener("dragover",function(e){
+        e.preventDefault();
+      },false);
+      window.addEventListener("drop",function(e){
+        e.preventDefault();
+      },false);
+
       if (scope.dragDropCtrl.zlDrag) {
         el.draggable = true
 
@@ -397,6 +404,8 @@ module.directive('zlDragDrop', function () {
         el.addEventListener(
           'drop',
           function (e) {
+            e.preventDefault()
+            e.stopPropagation()
             if (e.stopPropagation) e.stopPropagation()
             this.classList.remove('over')
             scope.dragDropCtrl.zlDrop({$data: e.dataTransfer.getData('Text'), $event: e})
