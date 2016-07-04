@@ -113,7 +113,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
     var elt = '<thead ng-if="!ctrl.gridMode"' + buildAttributes(tHeadAttrs) + '>' +
       '<tr ' + buildAttributes(headRowAttrs) + '>' +
       '<th ng-click="ctrl.selectAll()" ng-if="ctrl.selectedData"><input name="header-check" type="checkbox" ng-click="ctrl.selectAll(); $event.stopImmediatePropagation()" ng-checked="ctrl.areAllSelected()"/><label for="header-check" ng-click="ctrl.selectAll(); $event.stopImmediatePropagation()" ><span></span></label></th>' +
-      '<th ng-repeat="col in availableColumns | zlColumnFilter:ctrl.columns" ' +
+      '<th ng-repeat="col in availableColumns | zlColumnFilter:ctrl.columns track by col.id" ' +
       'id="{{col.id}}" ng-click="ctrl.order(col.id)" ' +
       'zl-drag-drop zl-drag="col.id" ' +
       'zl-drop="ctrl.dropColumn($data, col.id)"' +
@@ -134,9 +134,9 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
 
   function buildBody (tBodyAttrs, bodyRowAttrs) {
     var elt = '<tbody ng-if="!ctrl.gridMode"' + buildAttributes(tBodyAttrs) + '>' +
-      '<tr ' + buildAttributes(bodyRowAttrs) + 'class="noselect" ng-repeat="elt in ctrl.zlTable" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
+      '<tr ' + buildAttributes(bodyRowAttrs) + 'class="noselect" ng-repeat="elt in ctrl.zlTable track by ctrl.getIdValue(elt, $index)" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
       '<td ng-if="ctrl.selectedData" ng-click="ctrl.selectClick($event, elt)"><input name="{{elt._id}}" type="checkbox" ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" ng-checked="ctrl.isSelected(elt)"/><label for="{{elt._id}}" ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" ><span></span></label></td>' +
-      '<td ng-repeat="col in availableColumns | zlColumnFilter:ctrl.columns"><zl-template-compiler template="{{col.template}}"></zl-template-compiler></td>' +
+      '<td ng-repeat="col in availableColumns | zlColumnFilter:ctrl.columns track by col.id"><zl-template-compiler template="{{col.template}}"></zl-template-compiler></td>' +
       '</tr></tbody>'
     return elt
   }
@@ -165,6 +165,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
       }, function () {
         return self.pagination.currentPage
       }], init, true)
+
 
       function dropColumn (source, target) {
         var new_index = _.findIndex(self.columns, {id: target})
@@ -238,7 +239,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
         return _.includes(self.selectedData, getIdValue(elt))
       }
 
-      function getIdValue (obj) {
+      function getIdValue (obj, index) {
         if (!self.idField) {
           var found = _.find(ID_FIELDS, function (f) {
             return obj[f]
@@ -247,7 +248,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
             self.idField = found
           }
         }
-        return self.idField ? obj[self.idField] : undefined
+        return self.idField ? obj[self.idField] : index
       }
 
       function updateCall () {
