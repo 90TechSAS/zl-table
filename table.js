@@ -291,7 +291,8 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
         dropColumn: dropColumn,
         availableColumns: $scope.availableColumns,
         areAllSelected: areAllSelected,
-        isSortable: isSortable
+        isSortable: isSortable,
+        getIdValue:getIdValue
       })
 
       // init()
