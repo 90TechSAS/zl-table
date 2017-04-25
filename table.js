@@ -164,8 +164,22 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
         return self.pagination.perPage
       }, function () {
         return self.pagination.currentPage
+      },function(){
+        return self.columns
       }], init, true)
 
+      $scope.$watchCollection(function(){return self.columns}, function(){
+        self.columns.forEach(function(col){
+            if (/^customFields\./.test(col.id)){
+            var c = _.find($scope.availableColumns, {id: col.id})
+            if (!c){
+              var newColumn = _.clone(_.find($scope.availableColumns, {id: 'customFields'}))
+              newColumn.id = col.id
+              $scope.availableColumns.push(newColumn)
+            }
+        }
+        })
+      })
 
       function dropColumn (source, target) {
         var new_index = _.findIndex(self.columns, {id: target})
@@ -175,7 +189,8 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
       }
 
       function isSortable (col) {
-        return _.find(self.columns, {id: col.id}).sortable !== false
+        var found = _.find(self.columns, {id: col.id})
+        return found && found.sortable !== false
       }
 
       function selectAll () {
@@ -457,5 +472,6 @@ module.filter('zlColumnFilter', function () {
     }), function (col) {
       return cols.indexOf(col.id)
     })
+    
   }
 })
