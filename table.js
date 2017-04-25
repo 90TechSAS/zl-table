@@ -175,6 +175,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
             if (!c){
               var newColumn = _.clone(_.find($scope.availableColumns, {id: 'customFields'}))
               newColumn.id = col.id
+              newColumn.label = col.label
               $scope.availableColumns.push(newColumn)
             }
         }
