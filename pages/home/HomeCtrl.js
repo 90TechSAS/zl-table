@@ -12,7 +12,9 @@ angular.module('myApp').controller('HomeCtrl', ['$scope', '$http', '$q', functio
         {id: 'friends', visible:true},
         {id: 'tags', visible:true},
         {id: 'name.first', visible:true},
-        {id: 'name.last', visible:true}
+        {id: 'name.last', visible:true},
+        {id: 'customFields.toto', visible: true},
+        {id: 'customFields.tutu', visible: true}
     ];
 
     $scope.$watch(function(){return self.columns;}, function(val){console.info(val);});
@@ -22,12 +24,19 @@ angular.module('myApp').controller('HomeCtrl', ['$scope', '$http', '$q', functio
     };
     self.update = function (pagination) {
         console.info(pagination);
-        $http.get('http://beta.json-generator.com/api/json/get/EkdQWJIt' /*'http://www.json-generator.com/api/json/get/bTqDEPaTsi?indent=2'*/).success(function (data) {
+        $http.get(/*'http://beta.json-generator.com/api/json/get/EkdQWJIt'*/ 'http://www.json-generator.com/api/json/get/bTqDEPaTsi?indent=2').success(function (data) {
             // Simulate server side pagination
             var begin = pagination.currentPage * pagination.perPage;
             var end =  (pagination.currentPage+1)*pagination.perPage;
+            data.forEach(function(d){
+                d.customFields = {toto: d.name, tutu: d.name}
+            })
             self.data = data.slice(begin, end);
             self.pagination = _.extend(pagination, {totalElements : 20});
         });
     };
-}]);
+}]).filter('get', function(){
+    return function(elt, val){
+        return _.get(elt, val)
+    }
+});
