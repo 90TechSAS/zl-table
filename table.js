@@ -135,7 +135,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
   function buildBody (tBodyAttrs, bodyRowAttrs) {
     var elt = '<tbody ng-if="!ctrl.gridMode"' + buildAttributes(tBodyAttrs) + '>' +
       '<tr ' + buildAttributes(bodyRowAttrs) + 'class="noselect" ng-repeat="elt in ctrl.zlTable track by ctrl.getIdValue(elt, $index)" ng-click="ctrl.rowClick($event, elt)" ng-class="{\'zl-row-selected\': ctrl.isSelected(elt)}">' +
-      '<td ng-if="ctrl.selectedData" ng-click="ctrl.selectClick($event, elt)"><input name="{{elt._id}}" type="checkbox" ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" ng-checked="ctrl.isSelected(elt)"/><label for="{{elt._id}}" ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" ><span></span></label></td>' +
+      '<td ng-if="ctrl.selectedData" ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()"><input name="{{elt._id}}" type="checkbox" ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" ng-checked="ctrl.isSelected(elt)"/><label for="{{elt._id}}" ng-click="ctrl.selectClick($event, elt); $event.stopImmediatePropagation()" ><span></span></label></td>' +
       '<td ng-repeat="col in availableColumns | zlColumnFilter:ctrl.columns track by col.id"><zl-template-compiler template="{{col.template}}"></zl-template-compiler></td>' +
       '</tr></tbody>'
     return elt
