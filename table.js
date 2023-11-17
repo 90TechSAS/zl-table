@@ -2,10 +2,10 @@
  @toc
 
  @param {Object} scope (attrs that must be defined on the scope (i.e. in the controller) - they can't just be defined in the partial html). REMEMBER: use snake-case when setting these on the partial!
- TODO
+  TODO
 
  @param {Object} attrs REMEMBER: use snake-case when setting these on the partial! i.e. my-attr='1' NOT myAttr='1'
- TODO
+  TODO
 
  @dependencies
  TODO
@@ -170,7 +170,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
 
       $scope.$watchCollection(function(){return self.columns}, function(){
         self.columns.forEach(function(col){
-            if (/^customFields\./.test(col.id)){
+          if (/^customFields\./.test(col.id)){
             var c = _.find($scope.availableColumns, {id: col.id})
             if (!c){
               var newColumn = _.clone(_.find($scope.availableColumns, {id: 'customFields'}))
@@ -178,7 +178,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
               newColumn.label = col.label
               $scope.availableColumns.push(newColumn)
             }
-        }
+          }
         })
       })
 
@@ -467,12 +467,11 @@ module.directive('zlTemplateCompiler', ['$compile', function ($compile) {
 
 module.filter('zlColumnFilter', function () {
   return function (allColumns, columnList) {
-    var cols = _.pluck(_.filter(columnList, 'visible'), 'id')
+    var cols = _.filter(columnList, 'visible').map(el => el.id)
     return _.sortBy(_.reject(allColumns, function (col) {
       return !_.includes(cols, col.id)
     }), function (col) {
       return cols.indexOf(col.id)
     })
-    
   }
 })
