@@ -125,7 +125,7 @@ module.directive('zlTable', ['$compile', '$timeout', '$templateCache', function 
       'ng-class="{\'zl-col-sortable\': ctrl.isSortable(col), \'zl-col-reverse\': ctrl.pagination.orderBy == col.id && ctrl.pagination.reverse}"' +
       '>' +
       '<zl-template-compiler template="{{col.headTemplate}}"></zl-template-compiler>' +
-      '&nbsp;<button ng-click="ctrl.dismiss(col.id)" class="zl-table-del-btn"></button>' +
+      '<button ng-click="ctrl.dismiss(col.id)" class="zl-table-del-btn"></button>' +
       '</div>' +
       '</th>' +
       '</tr></thead>'
